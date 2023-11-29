@@ -1,5 +1,5 @@
 # AutoSrim
-To make a lot of  srim simulations without looking at it
+To make a lot of  srim simulations without looking at it using [costruc's pysrim](https://github.com/costrouc/pysrim)
 
 To use this program:
 1. Download all .py files and open simul.py in your favorite IDE
