@@ -18,4 +18,4 @@ This program uses ray to run multiple SRIM simulation at the same and does it in
 * Second step: it recalculates the width for each energy with a bit more ions
 * Third step: it does the same with the number of ion you want to simulate.
 
-if you want your width to be fixed, you can run srim_manuel.py.
+if you want your width to be fixed, you can run srim_manuel.py which is more basic than simul.py
