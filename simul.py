@@ -26,7 +26,7 @@ ray.init(ignore_reinit_error = True)
 srim_dir = r'C:\Softs\srim'
 
 #Dossier de sauvegarde ne pas oublier \\ à la fin
-save_dir = r'C:\Users\rn.verrone\Documents\Test\\'
+save_dir = r'C:\Users\Documents\Test\\'
 
 #définition de la structure
 GaN = Layer({
