@@ -26,7 +26,7 @@ ray.init(ignore_reinit_error = True)
 srim_dir = r'C:\Softs\srim'
 
 #Dossier de sauvegarde ne pas oublier \\ à la fin
-save_dir = r'C:\Users\Documents\Test\\'
+save_dir = r'C:\Users\rn.verrone\Documents\Test\\'
 
 #définition de la structure
 GaN = Layer({
@@ -67,7 +67,7 @@ ion_implant = 'N'
 nomcibles = 'SiN50nmGaN'
 
 #Nombre d'ion à simuler. A partir de 250k ça ne bouge plus trop
-nb_ions = 20000
+nb_ions = 1000
 
 #Méthode de calcul"
 """
@@ -97,10 +97,14 @@ nrjs = [1e3, 5e3, 10e3, 50e3, 100e3, 500e3] #pour aller vite/tests
 #variables pour la boucle principale
 i = 0
 tour = 0
-
+fixed_width = False
+Width = 10000
 ##### Boucle principale pour les simulations
 
 #Premier tour sur toutes les énergies avec une  épaisseur débilement grande et peu d'ions
+if fixed_width == True:
+    tour = 2
+
 if tour == 0:
     GaN.width = ini_width
     for nrj in nrjs:
@@ -132,12 +136,15 @@ if tour == 1:
     i = 0
 
 #Troisième tour avec le nombre d'ions voulu
-if tour == 2:
+if tour == 2 and fixed_width == False:
     ranges2,width2=ranges_width(simpath2)
     data2 = pd.read_excel(width2,engine='openpyxl',header=None)
     data_ar2 = np.array(data2)
     widths2 = data_ar2[1:,3]
     nrjs2 = data_ar2[1:,0]
+else:
+    widths2=[Width for gg in range(len(nrjs))]
+    nrjs2=nrjs
     for nrj in nrjs2:
         GaN.width = widths2[i]
         time.sleep(1)
