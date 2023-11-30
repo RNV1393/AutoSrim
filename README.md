@@ -13,7 +13,7 @@ To use this program:
 9. Define your energies
 10. Let the program run. In the end it will output in your save location 3 folders with in it all the  srim .txt files as well as 2 .xlsx files with in it the range table for each energy and a file with the range, straggle, kurtosis and skewness
 
-This program uses [ray](https://www.ray.io/) to run multiple SRIM simulation at the same and does it in 3 steps :
+This program uses [ray](https://www.ray.io/) to run multiple [SRIM](http://www.srim.org/) simulation at the same and does it in 3 steps :
 * First step: it roughly calculates ranges for each energy and will adapt width for the second run. The width is defined by range+6*straggle. **If you find a better way to define the width of the material/energy using range, straggle, kurtosis and skewness please tell me**
 * Second step: it recalculates the width for each energy with a bit more ions
 * Third step: it does the same with the number of ion you want to simulate.
