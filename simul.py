@@ -15,20 +15,18 @@ from ranges import ranges_width
 from wait_for_task import wait_for_tasks
 from auto_srim import auto_srim
 
+#### Sripts inits
 
-
-#### Inits pour faire tourner la fonction
-
-#init de ray
+#Starting Ray,
 ray.init(ignore_reinit_error = True)
 
-#Dossier de l'exe de SRIM
+#SRIM folder with .exe in it
 srim_dir = r'C:\Softs\srim'
 
-#Dossier de sauvegarde ne pas oublier \\ à la fin
-save_dir = r'C:\Users\Documents\Test\\'
+#Save folder, don't fogert \\ in the end
+save_dir = r'C:\Users\rn.verrone\Documents\Test\\'
 
-#définition de la structure
+#Defining structure (Layer, material, width)
 GaN = Layer({
         'N': {
             'stoich': 1.0,
@@ -57,19 +55,18 @@ SiN = Layer({
             'surface': 4.7
         }}, density = 3.17, width = 500, name = 'SiN') #width en Angstrom
 
-target = Target([SiN,GaN]) # pour un empilement définir une autre layer et la positionner avant
-#si c'est au dessus ou après si c'est en dessous
+target = Target([SiN,GaN]) #You can make stacks, Layer1, Layer2
 
-#Quel ion implanter
+#Which ion to implant
 ion_implant = 'N'
 
-#nom pour le dossier de sauvegarde
+#Save folder name
 nomcibles = 'SiN50nmGaN'
 
-#Nombre d'ion à simuler. A partir de 250k ça ne bouge plus trop
+#How many ions do you want to simulate. From 250k and on it doesn't move anymore
 nb_ions = 1000
 
-#Méthode de calcul"
+#Calculation method
 """
         (1) Ion Distribution and Quick Calculation of Damage (quick KP)
         (2) Detailed Calculation with full Damage Cascades (full cascades)
@@ -82,41 +79,43 @@ nb_ions = 1000
 """
 calc_method = 1
 
-#Angle de l'ion
+#Ion tilt
 tilt = 9
 
-#Taille intiale du matériau pour le premier tour
+#Inital width of the material for the first run
 ini_width = 10000000
 
-#matrice d'énergies
+#Energies. You can use as much as you want
 nrjs = [1e3,3e3, 5e3, 10e3, 15e3, 20e3, 30e3, 50e3, 75e3, 100e3, 125e3,
       150e3, 200e3, 300e3, 400e3, 500e3, 600e3, 700e3, 800e3, 900e3,
       1e6, 1.2e6, 1.35e6, 1.5e6]
-nrjs = [1e3, 5e3, 10e3, 50e3, 100e3, 500e3] #pour aller vite/tests
+nrjs = [1e3, 5e3, 10e3, 50e3, 100e3, 500e3]#for tests/quick sims
 
 #variables pour la boucle principale
 i = 0
 tour = 0
-fixed_width = False
-Width = 10000
-##### Boucle principale pour les simulations
 
-#Premier tour sur toutes les énergies avec une  épaisseur débilement grande et peu d'ions
-if fixed_width == True:
+#If you want to run ponly one width
+fixed_width = True
+Width = 10000
+
+##### Main loop for simulation
+
+if fixed_width is True:
     tour = 2
 
+#First loop on a stupidly big layer and few ions
 if tour == 0:
     GaN.width = ini_width
     for nrj in nrjs:
         pathID = auto_srim.remote(ion_implant,
-            nomcibles+str(tour),500,tilt,nrj,target,calc_method,srim_dir,save_dir)
+            nomcibles+str(tour),200,tilt,nrj,target,calc_method,srim_dir,save_dir)
         time.sleep(1)
-    wait_for_tasks() #attend que tous les processus lancés par ray soient finis
+    wait_for_tasks() #waits for ray to be finished
     simpath = ray.get(pathID)
     tour += 1
 
-#Deuxième tour avec des épaisseurs plus adaptées et un plus grand
-#nombre d'ions pour affiner l'épaisseur
+#Second loop with better witdh and more ions
 if tour == 1:
     ranges1,width1 = ranges_width(simpath)
     data = pd.read_excel(width1,engine='openpyxl',header=None)
@@ -127,7 +126,7 @@ if tour == 1:
         GaN.width = widths1[i]
         time.sleep(1)
         pathID2 = auto_srim.remote(ion_implant,
-            nomcibles+str(tour),2000,tilt,nrj,target,calc_method,srim_dir,save_dir)
+            nomcibles+str(tour),1000,tilt,nrj,target,calc_method,srim_dir,save_dir)
         time.sleep(1)
         i += 1
     wait_for_tasks()
@@ -135,16 +134,17 @@ if tour == 1:
     tour += 1
     i = 0
 
-#Troisième tour avec le nombre d'ions voulu
-if tour == 2 and fixed_width == False:
-    ranges2,width2=ranges_width(simpath2)
+#Third loop with the number of ions wanted to make the simulation or first
+#and last loop with fixed width
+if tour == 2 and not fixed_width:
+    ranges2,width2 = ranges_width(simpath2)
     data2 = pd.read_excel(width2,engine='openpyxl',header=None)
     data_ar2 = np.array(data2)
     widths2 = data_ar2[1:,3]
     nrjs2 = data_ar2[1:,0]
 else:
-    widths2=[Width for gg in range(len(nrjs))]
-    nrjs2=nrjs
+    widths2 = [Width for gg in range(len(nrjs))]
+    nrjs2 = nrjs
     for nrj in nrjs2:
         GaN.width = widths2[i]
         time.sleep(1)
@@ -156,4 +156,4 @@ else:
     simpath3 = ray.get(pathID3)
     ranges3,width3 = ranges_width(simpath3)
 
-ray.shutdown() #on stoppe ray à la fin
+ray.shutdown() #Stop ray
