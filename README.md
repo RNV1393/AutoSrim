@@ -18,4 +18,4 @@ This program uses [ray](https://www.ray.io/) to run multiple [SRIM](http://www.s
 * Second step: it recalculates the width for each energy with a bit more ions
 * Third step: it does the same with the number of ion you want to simulate.
 
-if you want your width to be fixed, you can run srim_manuel.py which is more basic than simul.py
+If you want your width to be fixed (because you know how far your ions will go and you want to make implant profiles with several energies), there is now an option (fixed_width), and you have to  set the width width with Width.
